@@ -63,6 +63,20 @@ class ClassGroup {
     }
 
     fun init() {
-
+        repeat(1) { step ->
+            when(step) {
+                0 -> {
+                    allClasses.forEach { cls ->
+                        if(cls.superName != null && cls.parent == null) {
+                            cls.parent = findClass(cls.superName)
+                            cls.parent?.children?.add(cls)
+                        }
+                        cls.interfaces.mapNotNull { findClass(it) }.forEach { itf ->
+                            if(cls.interfaceClasses.add(itf)) itf.implementers.add(cls)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

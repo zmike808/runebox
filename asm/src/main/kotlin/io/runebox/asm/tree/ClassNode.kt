@@ -1,10 +1,13 @@
 package io.runebox.asm.tree
 
 import io.runebox.asm.util.field
+import io.runebox.asm.util.nullField
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldNode
+import org.objectweb.asm.tree.MethodNode
 
 fun ClassNode.init(group: ClassGroup) {
     this.group = group
@@ -14,6 +17,14 @@ fun ClassNode.init(group: ClassGroup) {
 
 var ClassNode.group: ClassGroup by field()
 var ClassNode.ignored: Boolean by field { false }
+
+var ClassNode.parent: ClassNode? by nullField()
+val ClassNode.children: MutableList<ClassNode> by field { mutableListOf() }
+val ClassNode.interfaceClasses: MutableList<ClassNode> by field { mutableListOf() }
+val ClassNode.implementers: MutableList<ClassNode> by field { mutableListOf() }
+
+val ClassNode.methodTypeRefs: MutableList<MethodNode> by field { mutableListOf() }
+val ClassNode.fieldTypeRefs: MutableList<FieldNode> by field { mutableListOf() }
 
 val ClassNode.id get() = name
 val ClassNode.type get() = Type.getObjectType(name)

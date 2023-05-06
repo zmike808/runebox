@@ -5,6 +5,7 @@ import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
+import org.objectweb.asm.tree.MethodNode
 
 fun FieldNode.init(owner: ClassNode) {
     this.owner = owner
@@ -12,6 +13,9 @@ fun FieldNode.init(owner: ClassNode) {
 
 var FieldNode.owner: ClassNode by field()
 val FieldNode.group get() = owner.group
+
+val FieldNode.readRefs: MutableList<MethodNode> by field { mutableListOf() }
+val FieldNode.writeRefs: MutableList<MethodNode> by field { mutableListOf() }
 
 val FieldNode.id get() = "${owner.id}.$name"
 val FieldNode.type get() = Type.getType(desc)
