@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.plugin.kotlinToolingVersion
 
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm")
 }
 
 tasks.wrapper {
