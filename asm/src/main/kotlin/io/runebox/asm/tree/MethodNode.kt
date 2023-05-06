@@ -4,6 +4,7 @@ import io.runebox.asm.util.field
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 
 fun MethodNode.init(owner: ClassNode) {
@@ -12,6 +13,12 @@ fun MethodNode.init(owner: ClassNode) {
 
 var MethodNode.owner: ClassNode by field()
 val MethodNode.group get() = owner.group
+
+val MethodNode.refsIn: MutableSet<MethodNode> by field { mutableSetOf() }
+val MethodNode.refsOut: MutableSet<MethodNode> by field { mutableSetOf() }
+val MethodNode.fieldReadRefs: MutableSet<FieldNode> by field { mutableSetOf() }
+val MethodNode.fieldWriteRefs: MutableSet<FieldNode> by field { mutableSetOf() }
+val MethodNode.classRefs: MutableSet<ClassNode> by field { mutableSetOf() }
 
 val MethodNode.id get() = "${owner.id}.$name$desc"
 val MethodNode.type get() = Type.getMethodType(desc)
