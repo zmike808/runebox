@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.plugin.kotlinToolingVersion
 
 plugins {
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm")
 }
 
 tasks.wrapper {
@@ -23,6 +23,12 @@ allprojects {
     dependencies {
         implementation(kotlin("stdlib"))
         implementation(kotlin("reflect"))
+        testImplementation(kotlin("test-junit5"))
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:_")
+    }
+
+    tasks.test {
+        useJUnitPlatform()
     }
 }
 
