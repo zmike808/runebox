@@ -17,7 +17,8 @@ class Console {
 
     private val terminal: Terminal
     private val lineReader: LineReader
-    private val consoleThread: Thread
+
+    val thread: Thread
 
     init {
         try {
@@ -36,7 +37,7 @@ class Console {
         lineReader.setOpt(LineReader.Option.DISABLE_EVENT_EXPANSION)
         lineReader.unsetOpt(LineReader.Option.INSERT_TAB)
 
-        consoleThread = Thread {
+        thread = Thread {
             try {
                 var line: String
                 while(true) {
@@ -52,18 +53,18 @@ class Console {
                 terminal.close()
             }
         }
-        consoleThread.isDaemon = true
-        consoleThread.name = "ConsoleReader"
+        thread.isDaemon = true
+        thread.name = "ConsoleReader"
     }
 
     fun start() {
-        consoleThread.start()
+        thread.start()
     }
 
     fun stop() {
-        if(consoleThread.isInterrupted) {
+        if(thread.isInterrupted) {
             return
         }
-        consoleThread.interrupt()
+        thread.interrupt()
     }
 }

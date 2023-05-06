@@ -23,6 +23,12 @@ allprojects {
     dependencies {
         implementation(kotlin("stdlib"))
         implementation(kotlin("reflect"))
+        testImplementation(kotlin("test-junit5"))
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:_")
+    }
+
+    tasks.test {
+        useJUnitPlatform()
     }
 }
 
