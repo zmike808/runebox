@@ -14,8 +14,8 @@ fun FieldNode.init(owner: ClassNode) {
 var FieldNode.owner: ClassNode by field()
 val FieldNode.group get() = owner.group
 
-val FieldNode.readRefs: MutableList<MethodNode> by field { mutableListOf() }
-val FieldNode.writeRefs: MutableList<MethodNode> by field { mutableListOf() }
+val FieldNode.readRefs: MutableSet<MethodNode> by field { mutableSetOf() }
+val FieldNode.writeRefs: MutableSet<MethodNode> by field { mutableSetOf() }
 
 val FieldNode.id get() = "${owner.id}.$name"
 val FieldNode.type get() = Type.getType(desc)

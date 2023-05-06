@@ -1,6 +1,7 @@
 package io.runebox.deobfuscator
 
 import io.runebox.asm.tree.ClassGroup
+import io.runebox.asm.tree.resolveMethod
 import org.tinylog.kotlin.Logger
 import java.io.File
 import kotlin.reflect.full.createInstance

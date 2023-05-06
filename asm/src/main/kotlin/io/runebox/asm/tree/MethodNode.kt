@@ -14,11 +14,11 @@ fun MethodNode.init(owner: ClassNode) {
 var MethodNode.owner: ClassNode by field()
 val MethodNode.group get() = owner.group
 
-val MethodNode.refsIn: MutableList<MethodNode> by field { mutableListOf() }
-val MethodNode.refsOut: MutableList<MethodNode> by field { mutableListOf() }
-val MethodNode.fieldReadRefs: MutableList<FieldNode> by field { mutableListOf() }
-val MethodNode.fieldWriteRefs: MutableList<FieldNode> by field { mutableListOf() }
-val MethodNode.classRefs: MutableList<ClassNode> by field { mutableListOf() }
+val MethodNode.refsIn: MutableSet<MethodNode> by field { mutableSetOf() }
+val MethodNode.refsOut: MutableSet<MethodNode> by field { mutableSetOf() }
+val MethodNode.fieldReadRefs: MutableSet<FieldNode> by field { mutableSetOf() }
+val MethodNode.fieldWriteRefs: MutableSet<FieldNode> by field { mutableSetOf() }
+val MethodNode.classRefs: MutableSet<ClassNode> by field { mutableSetOf() }
 
 val MethodNode.id get() = "${owner.id}.$name$desc"
 val MethodNode.type get() = Type.getMethodType(desc)

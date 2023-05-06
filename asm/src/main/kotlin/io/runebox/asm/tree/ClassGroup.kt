@@ -1,6 +1,12 @@
 package io.runebox.asm.tree
 
+import org.objectweb.asm.Opcodes.*
+import org.objectweb.asm.tree.AbstractInsnNode.*
 import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.FieldInsnNode
+import org.objectweb.asm.tree.MethodInsnNode
+import org.objectweb.asm.tree.MethodNode
+import org.objectweb.asm.tree.TypeInsnNode
 import java.io.File
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
@@ -63,7 +69,7 @@ class ClassGroup {
     }
 
     fun init() {
-        repeat(1) { step ->
+        repeat(2) { step ->
             when(step) {
                 0 -> {
                     allClasses.forEach { cls ->
@@ -76,7 +82,69 @@ class ClassGroup {
                         }
                     }
                 }
+                1 -> {
+                    allClasses.forEach { cls ->
+                        cls.methods.forEach { method ->
+                            val it = method.instructions.iterator()
+                            while(it.hasNext()) {
+                                val insn = it.next()
+                                when(insn.type) {
+                                    METHOD_INSN -> {
+                                        insn as MethodInsnNode
+                                        handleMethodInvocation(
+                                            method,
+                                            insn.owner,
+                                            insn.name,
+                                            insn.desc,
+                                            insn.itf,
+                                            insn.opcode == INVOKESTATIC
+                                        )
+                                    }
+                                    FIELD_INSN -> {
+                                        insn as FieldInsnNode
+                                        val owner = findClass(insn.owner) ?: continue
+                                        val dst = owner.resolveField(insn.name, insn.desc) ?: continue
+                                        if(insn.opcode == GETSTATIC || insn.opcode == GETFIELD) {
+                                            dst.readRefs.add(method)
+                                            method.fieldReadRefs.add(dst)
+                                        } else {
+                                            dst.writeRefs.add(method)
+                                            method.fieldWriteRefs.add(dst)
+                                        }
+                                        dst.owner.methodTypeRefs.add(method)
+                                        method.classRefs.add(dst.owner)
+                                    }
+                                    TYPE_INSN -> {
+                                        insn as TypeInsnNode
+                                        val dst = findClass(insn.desc) ?: continue
+                                        dst.methodTypeRefs.add(method)
+                                        method.classRefs.add(dst)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private fun handleMethodInvocation(method: MethodNode, rawOwner: String, name: String, desc: String, toInterface: Boolean, isStatic: Boolean) {
+        val dst = resolveMethod(rawOwner, name, desc, toInterface, isStatic) ?: return
+        dst.refsIn.add(method)
+        dst.refsOut.add(dst)
+        dst.owner.methodTypeRefs.add(method)
+        method.classRefs.add(dst.owner)
+    }
+
+    private fun resolveMethod(
+        owner: String,
+        name: String,
+        desc: String,
+        toInterface: Boolean,
+        isStatic: Boolean
+    ): MethodNode? {
+        val cls = findClass(owner) ?: return null
+        return cls.resolveMethod(name, desc, toInterface)
     }
 }
