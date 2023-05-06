@@ -43,7 +43,7 @@ class TestClient(private val file: File, private val vanillaFile: File) {
         /*
          * Setup client applet.
          */
-        val main = params["initial_class"]!!.replace(".class", "")
+        val main = params["initial_class"]!!.replace(".class", "").replace("c", "C")
         applet = classLoader.loadClass(main).getDeclaredConstructor().newInstance() as Applet
         applet.background = Color.BLACK
         applet.size = Dimension(params["applet_minwidth"]!!.toInt(), params["applet_minheight"]!!.toInt())
