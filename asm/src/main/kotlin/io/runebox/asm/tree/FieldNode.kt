@@ -10,3 +10,5 @@ fun FieldNode.init(owner: ClassNode) {
 
 var FieldNode.owner: ClassNode by field()
 val FieldNode.group get() = owner.group
+
+val FieldNode.id get() = "${owner.id}.$name"

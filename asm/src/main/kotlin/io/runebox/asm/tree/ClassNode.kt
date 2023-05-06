@@ -16,8 +16,8 @@ var ClassNode.ignored: Boolean by field { false }
 
 val ClassNode.id get() = name
 
-fun ClassNode.findMethod(name: String, desc: String) = methods.firstOrNull { it.name == name && it.desc == desc }
-fun ClassNode.findField(name: String, desc: String) = fields.firstOrNull { it.name == name && it.desc == desc }
+fun ClassNode.getMethod(name: String, desc: String) = methods.firstOrNull { it.name == name && it.desc == desc }
+fun ClassNode.getField(name: String, desc: String) = fields.firstOrNull { it.name == name && it.desc == desc }
 
 fun ClassNode.fromBytes(bytes: ByteArray): ClassNode {
     val reader = ClassReader(bytes)

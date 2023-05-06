@@ -10,3 +10,5 @@ fun MethodNode.init(owner: ClassNode) {
 
 var MethodNode.owner: ClassNode by field()
 val MethodNode.group get() = owner.group
+
+val MethodNode.id get() = "${owner.id}.$name$desc"

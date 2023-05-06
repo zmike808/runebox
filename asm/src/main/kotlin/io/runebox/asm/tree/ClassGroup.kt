@@ -27,6 +27,10 @@ class ClassGroup {
         addClass(new)
     }
 
+    fun getClass(name: String) = classes.firstOrNull { it.name == name }
+    fun getIgnoredClass(name: String) = classes.firstOrNull { it.name == name }
+    fun findClass(name: String) = getClass(name) ?: getIgnoredClass(name)
+
     fun readJar(file: File, ignorePredicate: (ClassNode) -> Boolean = { false }) {
         JarFile(file).use { jar ->
             jar.entries().asSequence().forEach { entry ->
