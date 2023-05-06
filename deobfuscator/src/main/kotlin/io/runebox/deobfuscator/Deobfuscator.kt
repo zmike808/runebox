@@ -1,7 +1,7 @@
 package io.runebox.deobfuscator
 
 import io.runebox.asm.tree.ClassGroup
-import io.runebox.asm.tree.resolveMethod
+import io.runebox.deobfuscator.transformer.*
 import org.tinylog.kotlin.Logger
 import java.io.File
 import kotlin.reflect.full.createInstance
@@ -29,6 +29,27 @@ class Deobfuscator(
         /*
          * Register bytecode transformers
          */
+        register<RuntimeExceptionRemover>()
+        register<DeadCodeRemover>()
+        register<IllegalStateExceptionRemover>()
+        register<ControlFlowOptimizer>()
+        register<ExceptionRangeFixer>()
+        register<Renamer>()
+        register<UnusedArgRemover>()
+        register<GotoOptimizer>()
+        register<ConstructorErrorRemover>()
+        register<GetPathFixer>()
+        register<FieldOrigClassMover>()
+        register<StaticFieldOrigClassMover>()
+        register<UnusedFieldRemover>()
+        register<StaticMethodOrigClassMover>()
+        register<UnusedMethodRemover>()
+        register<FieldSorter>()
+        register<MethodSorter>()
+        register<ExprOrderNormalizer>()
+        register<MultiplierRemover>()
+        //register<StackFrameFixer>()
+        register<DecompilerTrapFixer>()
 
         Logger.info("Registered ${transformers.size} bytecode transformers.")
     }
@@ -40,7 +61,7 @@ class Deobfuscator(
          * Load classes from jar file.
          */
         group.readJar(inputJar) { cls -> arrayOf("bouncycastle", "json").any { cls.name.contains(it) }}
-        group.init()
+        //group.init()
         Logger.info("Loaded ${group.classes.size} classes from input jar.")
 
         /*
@@ -67,7 +88,17 @@ class Deobfuscator(
         Logger.info("Finished deobfuscation. Exiting process.")
     }
 
+    @DslMarker
+    private annotation class TransformerMarker
+
+    @TransformerMarker
     private inline fun <reified T : Transformer> register() {
         transformers.add(T::class.createInstance())
     }
+}
+
+fun String.isObfuscatedName(): Boolean {
+    return this.length <= 2 ||
+            (this.length == 3 && listOf("aa", "ab", "ac", "ad", "ae", "af").any { this.startsWith(it) } && this != "add") ||
+            (listOf("class", "method", "field").any { this.startsWith(it) })
 }
