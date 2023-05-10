@@ -5,6 +5,7 @@ plugins {
 rootProject.name = "runebox"
 
 include(":logger")
-include(":deobfuscator")
-include(":asm")
-include(":runescape")
+include(":gamepack")
+include(":client")
+include(":mixin")
+include(":mixin:mixin-annotation")
