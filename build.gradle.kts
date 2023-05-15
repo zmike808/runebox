@@ -1,11 +1,9 @@
-import org.jetbrains.kotlin.gradle.plugin.kotlinToolingVersion
-
 plugins {
     kotlin("jvm")
 }
 
 tasks.wrapper {
-    gradleVersion = "7.4"
+    gradleVersion = "8.1.1"
 }
 
 allprojects {
@@ -29,6 +27,10 @@ allprojects {
 
     tasks.test {
         useJUnitPlatform()
+    }
+
+    fun module(module: String) {
+
     }
 }
 
