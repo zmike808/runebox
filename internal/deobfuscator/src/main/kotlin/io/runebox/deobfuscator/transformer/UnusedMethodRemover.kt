@@ -17,7 +17,7 @@ class UnusedMethodRemover : Transformer {
     private var count = 0
 
     override fun run(group: ClassGroup) {
-        val classNames = group.allClasses.associateBy { it.name }
+        val classNames = group.classes.associateBy { it.name }
         val superClasses = MultimapBuilder.hashKeys().arrayListValues().build<ClassNode, String>()
         val subClasses = MultimapBuilder.hashKeys().arrayListValues().build<ClassNode, String>()
 

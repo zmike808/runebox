@@ -12,7 +12,7 @@ class UnusedFieldRemover : Transformer {
     private var count = 0
 
     override fun run(group: ClassGroup) {
-        val usedFields = group.allClasses.flatMap { it.methods }
+        val usedFields = group.classes.flatMap { it.methods }
             .flatMap { it.instructions.toArray().asIterable() }
             .mapNotNull { it as? FieldInsnNode }
             .map { "${it.owner}.${it.name}" }

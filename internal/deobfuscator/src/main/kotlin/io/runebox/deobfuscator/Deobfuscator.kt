@@ -1,6 +1,7 @@
 package io.runebox.deobfuscator
 
 import io.runebox.asm.tree.ClassGroup
+import io.runebox.asm.tree.ignored
 import io.runebox.deobfuscator.transformer.*
 import org.tinylog.kotlin.Logger
 import java.io.File
@@ -76,7 +77,11 @@ object Deobfuscator {
        */
       Logger.info("Loading classes from jar file: ${inputFile.name}.")
       group.readJar(inputFile)
-      group.removeAll { cls -> arrayOf("bouncycastle", "json").any { cls.name.contains(it) } }
+      group.classes.forEach { cls ->
+         if(arrayOf("bouncycastle", "json").any { cls.name.contains(it) }) {
+            cls.ignored = true
+         }
+      }
       group.init()
       Logger.info("Loaded ${group.classes.size} from jar file.")
 

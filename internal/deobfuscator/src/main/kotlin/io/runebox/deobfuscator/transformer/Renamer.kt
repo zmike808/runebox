@@ -32,7 +32,7 @@ class Renamer : Transformer {
         mappings["client"] = "Client"
         group.classes.forEach { cls ->
             if(!cls.name.isObfuscatedName() || cls.name == "client") return@forEach
-            val newName = "class${++classCount}"
+            val newName = "class${++classCount}_old"
             mappings[cls.identifier] = newName
         }
 
@@ -42,7 +42,7 @@ class Renamer : Transformer {
         group.classes.forEach { cls ->
             cls.methods.forEach methodLoop@ { method ->
                 if(!method.name.isObfuscatedName() || mappings.containsKey(method.identifier)) return@methodLoop
-                val newName = "method${++methodCount}"
+                val newName = "method${++methodCount}_old"
                 mappings[method.identifier] = newName
                 hierarchy[cls.name]!!.children.forEach { child ->
                     mappings["${child.name}.${method.name}${method.desc}"] = newName
@@ -56,7 +56,7 @@ class Renamer : Transformer {
         group.classes.forEach { cls ->
             cls.fields.forEach fieldLoop@ { field ->
                 if(!field.name.isObfuscatedName() || mappings.containsKey(field.identifier)) return@fieldLoop
-                val newName = "field${++fieldCount}"
+                val newName = "field${++fieldCount}_old"
                 mappings[field.identifier] = newName
                 hierarchy[cls.name]!!.children.forEach { child ->
                     mappings["${child.name}.${field.name}"] = newName

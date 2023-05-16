@@ -14,7 +14,7 @@ class UnusedArgRemover : Transformer {
     private var count = 0
 
     override fun run(group: ClassGroup) {
-        val classNames = group.allClasses.associateBy { it.name }
+        val classNames = group.classes.associateBy { it.name }
         val rootMethods = hashSetOf<String>()
         val opaqueMethodsMap = MultimapBuilder.hashKeys().arrayListValues().build<String, MethodNode>()
         val opaqueMethods = opaqueMethodsMap.asMap()

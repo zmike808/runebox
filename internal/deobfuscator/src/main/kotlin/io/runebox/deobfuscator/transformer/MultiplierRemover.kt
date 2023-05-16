@@ -63,7 +63,7 @@ class MultiplierRemover : Transformer {
         val multipliers = EuclideanMultipliers(group).calculateDecoders()
         val decoders = multipliers.decoders.mapKeys { it.key }.mapValues { it.value.toLong() }
 
-        group.allClasses.forEach { c ->
+        group.classes.forEach { c ->
             c.methods.forEach { m ->
                 m.maxStack += 2
                 m.cancelOutMultipliers(decoders)
@@ -72,7 +72,7 @@ class MultiplierRemover : Transformer {
             }
         }
 
-        group.allClasses.forEach { c ->
+        group.classes.forEach { c ->
             c.methods.forEach { m ->
                 val insns = m.instructions.iterator()
                 while(insns.hasNext()) {
@@ -406,7 +406,7 @@ class MultiplierRemover : Transformer {
             val multipliers = Multipliers()
             val analyzer = Analyzer(Interpret(multipliers))
 
-            group.allClasses.forEach { c ->
+            group.classes.forEach { c ->
                 c.methods.forEach { m ->
                     analyzer.analyze(m.owner.name, m)
                 }
