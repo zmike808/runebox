@@ -10,6 +10,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
+import org.tinylog.kotlin.Logger;
 
 import java.util.*;
 import java.util.function.*;
@@ -344,7 +345,7 @@ public class ClassifierUtil {
 							implB.getOwner(), implB.getName(), implB.getDesc(), Util.isCallToInterface(implB),
 							env) ? COMPARED_SIMILAR : COMPARED_DISTINCT;
 				default:
-					System.out.println("unexpected impl tag: "+implA.getTag());
+					Logger.INSTANCE.debug("unexpected impl tag: "+implA.getTag());
 				}
 			} else if (!Util.isIrrelevantBsm(a.bsm)) {
 				System.out.printf("unknown invokedynamic bsm: %s/%s%s (tag=%d iif=%b)%n", a.bsm.getOwner(), a.bsm.getName(), a.bsm.getDesc(), a.bsm.getTag(), a.bsm.isInterface());

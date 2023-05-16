@@ -1109,7 +1109,7 @@ class Analysis {
 
 		lvToVar = null;
 
-		System.out.println("Local vars raw:");
+		Logger.INSTANCE.debug("Local vars raw:");
 
 		for (int i = 0; i < varCount; i++) {
 			ExecState state = rec.getState(startIndices[i]);
@@ -1220,7 +1220,7 @@ class Analysis {
 			}
 		}
 
-		System.out.println("Local vars:");
+		Logger.INSTANCE.debug("Local vars:");
 
 		for (int i = 0; i < varCount; i++) {
 			ExecState state = rec.getState(startIndices[i]);
@@ -1247,9 +1247,9 @@ class Analysis {
 			}
 
 			if (!mismatch) {
-				System.out.println("Existing vars matched!");
+				Logger.INSTANCE.debug("Existing vars matched!");
 			} else {
-				System.out.println("Existing vars mismatch:");
+				Logger.INSTANCE.debug("Existing vars mismatch:");
 
 				for (int i = 0; i < orig.size(); i++) {
 					LocalVariableNode lvn = orig.get(i);
@@ -1939,7 +1939,7 @@ class Analysis {
 		AbstractInsnNode fieldWrite = null;
 
 		//dump(method.asmNode);
-		//System.out.println("\n------------------------\n");
+		//Logger.INSTANCE.debug("\n------------------------\n");
 
 		for (Iterator<AbstractInsnNode> it = il.iterator(); it.hasNext(); ) {
 			AbstractInsnNode aInsn = it.next();
@@ -2067,7 +2067,7 @@ class Analysis {
 			SourceValue value = frame.getStack(frame.getStackSize() - 1);
 
 			if (value.insns.isEmpty()) {
-				System.out.println("empty");
+				Logger.INSTANCE.debug("empty");
 				break;
 			}
 
@@ -2081,7 +2081,7 @@ class Analysis {
 		}*/
 
 		/*System.out.println(frame);
-		System.out.println("\n------------------------\n");
+		Logger.INSTANCE.debug("\n------------------------\n");
 
 		dump(frame.getStack(frame.getStackSize() - 1).insns);*/
 		//System.out.println();
