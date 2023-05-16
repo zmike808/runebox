@@ -1,5 +1,7 @@
 package io.runebox.asm.tree
 
+import org.objectweb.asm.commons.ClassRemapper
+import org.objectweb.asm.commons.SimpleRemapper
 import org.objectweb.asm.tree.ClassNode
 import java.io.File
 import java.util.jar.JarEntry
@@ -23,6 +25,10 @@ class ClassGroup {
         classList.remove(cls)
     }
 
+    fun removeAll(filter: (ClassNode) -> Boolean) {
+        classList.removeAll(filter)
+    }
+
     fun getClass(name: String) = classes.firstOrNull { it.name == name }
     fun getIgnoredClass(name: String) = ignoredClasses.firstOrNull { it.name == name }
     fun findClass(name: String) = allClasses.firstOrNull { it.name == name }
@@ -41,12 +47,14 @@ class ClassGroup {
         }
     }
 
-    fun readJar(file: File) {
+    fun readJar(file: File, block: (ClassNode) -> Unit = {}) {
         JarFile(file).use { jar ->
-            jar.entries().asSequence().forEach { entry ->
+            jar.entries().asSequence().forEachIndexed { index, entry ->
                 if(entry.name.endsWith(".class")) {
                     val bytes = jar.getInputStream(entry).readAllBytes()
                     val cls = ClassNode().fromBytes(bytes)
+                    cls.index = index
+                    block(cls)
                     addClass(cls)
                 }
             }
@@ -54,16 +62,38 @@ class ClassGroup {
         this.init()
     }
 
-    fun writeJar(file: File) {
+    fun writeJar(file: File, block: (ClassNode) -> Unit = {}) {
         if(file.exists()) file.delete()
         file.createNewFile()
         JarOutputStream(file.outputStream()).use { jos ->
             allClasses.forEach { cls ->
+                block(cls)
                 val bytes = cls.toBytes()
                 jos.putNextEntry(JarEntry("${cls.name}.class"))
                 jos.write(bytes)
                 jos.closeEntry()
             }
         }
+    }
+
+    fun clear() {
+        classList.clear()
+    }
+
+    fun remap(mappings: HashMap<String, String>) {
+        val remapper = SimpleRemapper(mappings)
+        val newNodes = hashMapOf<ClassNode, ClassNode>()
+        allClasses.forEach { cls ->
+            val newCls = ClassNode()
+            newCls.ignored = cls.ignored
+            newCls.index = cls.index
+            cls.accept(ClassRemapper(newCls, remapper))
+            newNodes[cls] = newCls
+        }
+        newNodes.forEach { (old, new) ->
+            removeClass(old)
+            addClass(new)
+        }
+        init()
     }
 }

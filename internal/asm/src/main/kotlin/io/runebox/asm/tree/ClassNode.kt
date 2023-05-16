@@ -8,10 +8,16 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 
-internal fun ClassNode.init(group: ClassGroup) {
+fun ClassNode.init(group: ClassGroup) {
     this.group = group
-    methods.forEach { it.init(this) }
-    fields.forEach { it.init(this) }
+    methods.forEachIndexed { index, method ->
+        method.init(this)
+        method.index = index
+    }
+    fields.forEachIndexed { index, field ->
+        field.init(this)
+        field.index = index
+    }
 }
 
 internal fun ClassNode.clear() {
@@ -22,9 +28,10 @@ internal fun ClassNode.clear() {
 }
 
 var ClassNode.group: ClassGroup by field()
+var ClassNode.index: Int by field { -1 }
 var ClassNode.ignored: Boolean by field { false }
 
-val ClassNode.id get() = name
+val ClassNode.identifier get() = name
 val ClassNode.type get() = Type.getObjectType(name)
 
 var ClassNode.superClass: ClassNode? by nullField()

@@ -4,13 +4,22 @@ import io.runebox.util.field
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
+import java.lang.reflect.Modifier
 
-internal fun MethodNode.init(owner: ClassNode) {
+fun MethodNode.init(owner: ClassNode) {
     this.owner = owner
 }
 
 var MethodNode.owner: ClassNode by field()
+var MethodNode.index: Int by field { -1 }
 val MethodNode.group get() = owner.group
 
-val MethodNode.id get() = "${owner.id}.$name$desc"
+val MethodNode.identifier get() = "${owner.identifier}.$name$desc"
 val MethodNode.type get() = Type.getMethodType(desc)
+
+fun MethodNode.isStatic() = Modifier.isStatic(access)
+fun MethodNode.isAbstract() = Modifier.isAbstract(access)
+fun MethodNode.isPrivate() = Modifier.isPrivate(access)
+
+fun MethodNode.isConstructor() = name == "<init>"
+fun MethodNode.isInitializer() = name == "<clinit>"
