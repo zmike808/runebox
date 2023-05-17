@@ -1,8 +1,8 @@
-package matcher.classifier;
+package io.runebox.updater.matcher.classifier;
 
-import matcher.Util;
-import matcher.classifier.MatchingCache.CacheToken;
-import matcher.type.*;
+import io.runebox.updater.matcher.Util;
+import io.runebox.updater.matcher.classifier.MatchingCache.CacheToken;
+import io.runebox.updater.matcher.type.*;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -345,10 +345,10 @@ public class ClassifierUtil {
 							implB.getOwner(), implB.getName(), implB.getDesc(), Util.isCallToInterface(implB),
 							env) ? COMPARED_SIMILAR : COMPARED_DISTINCT;
 				default:
-					Logger.INSTANCE.debug("unexpected impl tag: "+implA.getTag());
+					Logger.INSTANCE.info("unexpected impl tag: "+implA.getTag());
 				}
 			} else if (!Util.isIrrelevantBsm(a.bsm)) {
-				System.out.printf("unknown invokedynamic bsm: %s/%s%s (tag=%d iif=%b)%n", a.bsm.getOwner(), a.bsm.getName(), a.bsm.getDesc(), a.bsm.getTag(), a.bsm.isInterface());
+				Logger.INSTANCE.info("unknown invokedynamic bsm: %s/%s%s (tag=%d iif=%b)%n", a.bsm.getOwner(), a.bsm.getName(), a.bsm.getDesc(), a.bsm.getTag(), a.bsm.isInterface());
 			}
 
 			// TODO: implement
@@ -590,7 +590,7 @@ public class ClassifierUtil {
 
 		/*for (int j = 0; j <= sizeB; j++) {
 			for (int i = 0; i <= sizeA; i++) {
-				System.out.printf("%2d ", v[i + j * size]);
+				Logger.INSTANCE.info("%2d ", v[i + j * size]);
 			}
 
 			System.out.println();
@@ -609,10 +609,10 @@ public class ClassifierUtil {
 			if (keepCost <= delCost && keepCost <= insCost) {
 				if (c - keepCost >= COMPARED_DISTINCT) {
 					assert c - keepCost == COMPARED_DISTINCT;
-					//System.out.printf("%d/%d rep %s -> %s%n", i-1, j-1, toString(elementRetriever.apply(listA, i - 1)), toString(elementRetriever.apply(listB, j - 1)));
+					//Logger.INSTANCE.info("%d/%d rep %s -> %s%n", i-1, j-1, toString(elementRetriever.apply(listA, i - 1)), toString(elementRetriever.apply(listB, j - 1)));
 					ret[i - 1] = -1;
 				} else {
-					//System.out.printf("%d/%d eq %s - %s%n", i-1, j-1, toString(elementRetriever.apply(listA, i - 1)), toString(elementRetriever.apply(listB, j - 1)));
+					//Logger.INSTANCE.info("%d/%d eq %s - %s%n", i-1, j-1, toString(elementRetriever.apply(listA, i - 1)), toString(elementRetriever.apply(listB, j - 1)));
 					ret[i - 1] = j - 1;
 
 					/*U e = elementRetriever.apply(listA, i - 1);
@@ -626,11 +626,11 @@ public class ClassifierUtil {
 				i--;
 				j--;
 			} else if (delCost < insCost) {
-				//System.out.printf("%d/%d del %s%n", i-1, j-1, toString(elementRetriever.apply(listA, i - 1)));
+				//Logger.INSTANCE.info("%d/%d del %s%n", i-1, j-1, toString(elementRetriever.apply(listA, i - 1)));
 				ret[i - 1] = -1;
 				i--;
 			} else {
-				//System.out.printf("%d/%d ins %s%n", i-1, j-1, toString(elementRetriever.apply(listB, j - 1)));
+				//Logger.INSTANCE.info("%d/%d ins %s%n", i-1, j-1, toString(elementRetriever.apply(listB, j - 1)));
 				j--;
 			}
 		}

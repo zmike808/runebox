@@ -28,6 +28,7 @@ module(":injector")
 module(":mixin")
 module("internal:asm")
 module("internal:deobfuscator")
+module("internal:deobfuscator:deobfuscator-annotation")
 module("internal:updater")
 module("internal:gamepack")
 

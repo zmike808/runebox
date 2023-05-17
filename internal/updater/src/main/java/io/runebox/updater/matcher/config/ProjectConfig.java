@@ -1,7 +1,6 @@
 package io.runebox.updater.matcher.config;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
@@ -47,14 +46,6 @@ public class ProjectConfig {
 
 	public List<Path> getPathsB() {
 		return pathsB;
-	}
-
-	public void setPathsA(Path path) {
-		this.pathsA = List.of(path);
-	}
-
-	public void setPathsB(Path path) {
-		this.pathsB = List.of(path);
 	}
 
 	public List<Path> getClassPathA() {
@@ -143,8 +134,8 @@ public class ProjectConfig {
 	private static final String nonObfuscatedMemberPatternAKey = "non-obfuscated-member-pattern-a";
 	private static final String nonObfuscatedMemberPatternBKey = "non-obfuscated-member-pattern-b";
 
-	private List<Path> pathsA;
-	private List<Path> pathsB;
+	private final List<Path> pathsA;
+	private final List<Path> pathsB;
 	private final List<Path> classPathA;
 	private final List<Path> classPathB;
 	private final List<Path> sharedClassPath;

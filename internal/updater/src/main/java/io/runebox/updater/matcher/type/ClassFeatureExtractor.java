@@ -1,11 +1,11 @@
-package matcher.type;
+package io.runebox.updater.matcher.type;
 
-import matcher.NameType;
-import matcher.Util;
-import matcher.type.Analysis.CommonClasses;
+import io.runebox.updater.matcher.NameType;
+import io.runebox.updater.matcher.Util;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
+import org.tinylog.kotlin.Logger;
 
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -121,7 +121,7 @@ public class ClassFeatureExtractor implements LocalClassEnv {
 		initialClasses.clear();
 		initialClasses.addAll(classes.values());
 
-		CommonClasses common = new CommonClasses(this);
+		Analysis.CommonClasses common = new Analysis.CommonClasses(this);
 
 		for (ClassInstance cls : initialClasses) {
 			if (cls.isReal()) processClassD(cls, common);
@@ -145,7 +145,7 @@ public class ClassFeatureExtractor implements LocalClassEnv {
 		initStep++;
 	}
 
-	private void processPending(CommonClasses commonClasses) {
+	private void processPending(Analysis.CommonClasses commonClasses) {
 		if (pendingInit.isEmpty()) return;
 
 		List<List<ClassInstance>> steps = new ArrayList<>(initStep - 1);
@@ -214,7 +214,7 @@ public class ClassFeatureExtractor implements LocalClassEnv {
 
 	private void processMethodInsns(MethodInstance method) {
 		if (!method.isReal()) { // artificial method to capture calls to types with incomplete/unknown hierarchy/super type method info
-			Logger.INSTANCE.debug("skipping empty method "+method);
+			Logger.INSTANCE.info("skipping empty method "+method);
 			return;
 		}
 
@@ -277,7 +277,7 @@ public class ClassFeatureExtractor implements LocalClassEnv {
 							Util.isCallToInterface(impl), impl.getTag() == Opcodes.H_INVOKESTATIC);
 					break;
 				default:
-					Logger.INSTANCE.debug("unexpected impl tag: "+impl.getTag());
+					Logger.INSTANCE.info("unexpected impl tag: "+impl.getTag());
 				}
 
 				break;
@@ -302,7 +302,7 @@ public class ClassFeatureExtractor implements LocalClassEnv {
 		MethodInstance ret = cls.resolveMethod(name, desc, toInterface);
 
 		if (ret == null && create) {
-			System.out.printf("creating synthetic method %s/%s%s%n", owner, name, desc);
+			Logger.INSTANCE.info("creating synthetic method %s/%s%s%n", owner, name, desc);
 
 			ret = new MethodInstance(cls, name, desc, isStatic);
 			cls.addMethod(ret);
@@ -380,7 +380,7 @@ public class ClassFeatureExtractor implements LocalClassEnv {
 	/**
 	 * 4th processing pass, child<->parent relation and in depth analysis.
 	 */
-	private void processClassD(ClassInstance cls, CommonClasses common) {
+	private void processClassD(ClassInstance cls, Analysis.CommonClasses common) {
 		Queue<ClassInstance> toCheck = new ArrayDeque<>();
 		Set<ClassInstance> checked = Util.newIdentityHashSet();
 		Set<MemberHierarchyData<MethodInstance>> nameObfChecked = Util.newIdentityHashSet();

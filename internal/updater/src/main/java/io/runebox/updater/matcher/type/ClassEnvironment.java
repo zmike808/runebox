@@ -581,15 +581,6 @@ public final class ClassEnvironment implements ClassEnv {
 	private final Map<String, ClassInstance> sharedClasses = new HashMap<>();
 	private final List<FileSystem> openFileSystems = new ArrayList<>();
 	private final Map<String, Path> classPathIndex = new HashMap<>();
-
-	public ClassFeatureExtractor getExtractorA() {
-		return extractorA;
-	}
-
-	public ClassFeatureExtractor getExtractorB() {
-		return extractorB;
-	}
-
 	private final ClassFeatureExtractor extractorA = new ClassFeatureExtractor(this);
 	private final ClassFeatureExtractor extractorB = new ClassFeatureExtractor(this);
 	private final MatchingCache cache = new MatchingCache();

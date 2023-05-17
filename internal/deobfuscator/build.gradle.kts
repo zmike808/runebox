@@ -1,7 +1,7 @@
 dependencies {
     implementation(project(":runebox-asm"))
     implementation(project(":runebox-logger"))
+    implementation(project(":runebox-deobfuscator-annotation"))
     implementation("com.google.guava:guava:_")
-    implementation("org.bouncycastle:bcprov-jdk15on:_")
-    implementation("org.json:json:_")
+    implementation("org.jgrapht:jgrapht-core:_")
 }

@@ -1,49 +1,76 @@
 package io.runebox.updater
 
 import io.runebox.asm.tree.ClassGroup
+import io.runebox.asm.tree.fromBytes
 import io.runebox.asm.util.InheritanceGraph
-import matcher.Matcher
-import matcher.config.Config
-import matcher.config.ProjectConfig
-import matcher.type.ClassEnvironment
+import io.runebox.updater.matcher.Matcher
+import io.runebox.updater.matcher.NameType
+import io.runebox.updater.matcher.config.Config
+import io.runebox.updater.matcher.config.ProjectConfig
+import io.runebox.updater.matcher.type.ClassEnvironment
+import org.objectweb.asm.tree.ClassNode
 import org.tinylog.kotlin.Logger
 import java.io.File
 
+
 class Updater(
-    val oldJar: File,
-    val newJar: File,
-    val outputJar: File
+    private val oldJar: File,
+    private val newJar: File,
+    private val outputJar: File,
+    private val runTestClient: Boolean = false
 ) {
 
     companion object {
-
         @JvmStatic
         fun main(args: Array<String>) {
             if(args.size < 3) error("Usage: <old-named-jar> <new-deob-jar> <output-named-jar>")
             val oldJar = File(args[0])
             val newJar = File(args[1])
             val outputJar = File(args[2])
-            Updater(oldJar, newJar, outputJar).run()
+            val runTestClient = (args.size >= 4 && args[3] in arrayOf("-t", "--test"))
+
+            Updater(oldJar, newJar, outputJar, runTestClient).run()
         }
     }
 
     lateinit var env: ClassEnvironment private set
     lateinit var matcher: Matcher private set
 
+    private lateinit var nodeFixerA: StaticNodeFixer
+    private lateinit var nodeFixerB: StaticNodeFixer
+
     private fun init() {
         Logger.info("Initializing updater.")
 
+        /*
+         * Migrate static nodes to their own owner for analysis.
+         */
+        val preGroupA = ClassGroup().also { it.readJar(oldJar) }
+        val preGroupB = ClassGroup().also { it.readJar(newJar) }
+        preGroupA.init()
+        preGroupB.init()
+
+        nodeFixerA = StaticNodeFixer(preGroupA).also {
+            it.extract()
+            preGroupA.writeJar(oldJar.resolveSibling("${oldJar.name}.obf"))
+        }
+
+        nodeFixerB = StaticNodeFixer(preGroupB).also {
+            it.extract()
+            preGroupB.writeJar(newJar.resolveSibling("${newJar.name}.obf"))
+        }
+
         val config = ProjectConfig(
-            mutableListOf(oldJar.toPath()),
-            mutableListOf(newJar.toPath()),
+            mutableListOf(oldJar.resolveSibling("${oldJar.name}.obf").toPath()),
+            mutableListOf(newJar.resolveSibling("${newJar.name}.obf").toPath()),
             mutableListOf(),
             mutableListOf(),
             mutableListOf(),
             false,
-            "^(?!class|method|field).*",
-            "^(class|method|field).*",
-            "^(?!class|method|field).*",
-            "^(class|method|field).*"
+            "",
+            "",
+            "",
+            ""
         )
         Config.init()
         Matcher.init()
@@ -62,10 +89,10 @@ class Updater(
         this.init()
 
         Logger.info("Started computing similarity mappings between all entries in input jars.")
-        matcher.autoMatchAll {}
+        matcher.autoMatchAll { /* Do Nothing */ }
         Logger.info("Successfully completed dynamically mapping of jar entries.")
 
-        //this.save()
+        this.save()
 
         println("\n")
         matcher.logMatchingStatus()
@@ -78,41 +105,11 @@ class Updater(
         outputJar.createNewFile()
 
         val group = ClassGroup()
-        group.readJar(newJar)
-        group.init()
 
-        val inheritanceGraph = InheritanceGraph(group)
-        val mappings = hashMapOf<String, String>()
-
-        Logger.info("Remapping new-jar with mappings to old-jar.")
-        env.envA.classes.forEach { clsA ->
-            if(clsA.hasMatch()) {
-                mappings[clsA.match.name] = clsA.name
-
-                clsA.match.methods.forEach { methodA ->
-                    if(methodA.hasMatch() && !mappings.containsKey("${methodA.match.owner.name}.${methodA.match.name}${methodA.match.desc}")) {
-                        val methodName = methodA.match.name
-                        mappings["${methodA.match.owner.name}.${methodA.match.name}${methodA.match.desc}"] = methodName
-                        inheritanceGraph[methodA.match.owner.name]!!.children.forEach {
-                            mappings["${it.name}.${methodA.match.name}${methodA.match.desc}"] = methodName
-                        }
-                    }
-                }
-
-                clsA.match.fields.forEach { fieldA ->
-                    if(fieldA.hasMatch() && !mappings.containsKey("${fieldA.match.owner.name}.${fieldA.match.name}")) {
-                        val fieldName = fieldA.match.name
-                        mappings["${fieldA.match.owner.name}.${fieldA.match.name}"] = fieldName
-                        inheritanceGraph[fieldA.match.owner.name]!!.children.forEach {
-                            mappings["${it.name}.${fieldA.match.name}"] = fieldName
-                        }
-                    }
-                }
-            }
+        env.envB.classes.forEach { cls ->
+            val node = ClassNode().fromBytes(cls.serialize(NameType.MAPPED_AUX_PLAIN))
+            group.addClass(node)
         }
-
-        Logger.info("Applying mappings to output class group.")
-        group.remap(mappings)
 
         Logger.info("Writing classes to output jar.")
         group.writeJar(outputJar)

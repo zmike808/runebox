@@ -12,7 +12,7 @@ object Deobfuscator {
    private lateinit var inputFile: File
    private lateinit var outputFile: File
    private var runTestClient = false
-   private var consolidateStatics = false
+   var annotateMappings = false
 
    private val group = ClassGroup()
    private val transformers = mutableListOf<Transformer>()
@@ -46,6 +46,7 @@ object Deobfuscator {
       register<MultiplierRemover>()
       register<StackFrameFixer>()
       register<DecompilerTrapFixer>()
+      register<CopyPropagationFixer>()
    }
 
    @JvmStatic
@@ -54,11 +55,13 @@ object Deobfuscator {
 
       val inputFile = File(args[0])
       val outputFile = File(args[1])
-      val runTestClient = args.size >= 3 && args[2] == "-t"
+      val runTestClient = args.size >= 3 && args.any { it == "-t" }
+      val annotateMappings = args.size >= 3 && args.any { it == "-a" }
 
       this.inputFile = inputFile
       this.outputFile = outputFile
       this.runTestClient = runTestClient
+      this.annotateMappings = annotateMappings
 
       this.init()
       this.run()

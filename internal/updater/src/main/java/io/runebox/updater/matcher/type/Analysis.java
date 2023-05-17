@@ -1,7 +1,7 @@
-package matcher.type;
+package io.runebox.updater.matcher.type;
 
-import matcher.NameType;
-import matcher.Util;
+import io.runebox.updater.matcher.NameType;
+import io.runebox.updater.matcher.Util;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.analysis.*;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
+import org.tinylog.kotlin.Logger;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -1109,12 +1110,12 @@ class Analysis {
 
 		lvToVar = null;
 
-		Logger.INSTANCE.debug("Local vars raw:");
+		Logger.INSTANCE.info("Local vars raw:");
 
 		for (int i = 0; i < varCount; i++) {
 			ExecState state = rec.getState(startIndices[i]);
 
-			System.out.printf("  %d: LV %d @ %d - %d: %s\t\t(%s)%n",
+			Logger.INSTANCE.info("  %d: LV %d @ %d - %d: %s\t\t(%s)%n",
 					i, varToLv[i], startIndices[i], endIndices[i], state.locals[varToLv[i]].toString(), rec.varSources[state.localVarIds[varToLv[i]] - 1].name());
 		}
 
@@ -1220,12 +1221,12 @@ class Analysis {
 			}
 		}
 
-		Logger.INSTANCE.debug("Local vars:");
+		Logger.INSTANCE.info("Local vars:");
 
 		for (int i = 0; i < varCount; i++) {
 			ExecState state = rec.getState(startIndices[i]);
 
-			System.out.printf("  %d: LV %d @ %d - %d: %s\t\t(%s)%n",
+			Logger.INSTANCE.info("  %d: LV %d @ %d - %d: %s\t\t(%s)%n",
 					i, varToLv[i], startIndices[i], endIndices[i], state.locals[varToLv[i]].toString(), rec.varSources[state.localVarIds[varToLv[i]] - 1].name());
 		}
 
@@ -1247,14 +1248,14 @@ class Analysis {
 			}
 
 			if (!mismatch) {
-				Logger.INSTANCE.debug("Existing vars matched!");
+				Logger.INSTANCE.info("Existing vars matched!");
 			} else {
-				Logger.INSTANCE.debug("Existing vars mismatch:");
+				Logger.INSTANCE.info("Existing vars mismatch:");
 
 				for (int i = 0; i < orig.size(); i++) {
 					LocalVariableNode lvn = orig.get(i);
 
-					System.out.printf("  %d: LV %d @ %d - %d: %s%n", i, lvn.index, il.indexOf(lvn.start), il.indexOf(lvn.end) - 1, lvn.desc);
+					Logger.INSTANCE.info("  %d: LV %d @ %d - %d: %s%n", i, lvn.index, il.indexOf(lvn.start), il.indexOf(lvn.end) - 1, lvn.desc);
 				}
 			}
 		}
@@ -1939,7 +1940,7 @@ class Analysis {
 		AbstractInsnNode fieldWrite = null;
 
 		//dump(method.asmNode);
-		//Logger.INSTANCE.debug("\n------------------------\n");
+		//Logger.INSTANCE.info("\n------------------------\n");
 
 		for (Iterator<AbstractInsnNode> it = il.iterator(); it.hasNext(); ) {
 			AbstractInsnNode aInsn = it.next();
@@ -2067,7 +2068,7 @@ class Analysis {
 			SourceValue value = frame.getStack(frame.getStackSize() - 1);
 
 			if (value.insns.isEmpty()) {
-				Logger.INSTANCE.debug("empty");
+				Logger.INSTANCE.info("empty");
 				break;
 			}
 
@@ -2081,7 +2082,7 @@ class Analysis {
 		}*/
 
 		/*System.out.println(frame);
-		Logger.INSTANCE.debug("\n------------------------\n");
+		Logger.INSTANCE.info("\n------------------------\n");
 
 		dump(frame.getStack(frame.getStackSize() - 1).insns);*/
 		//System.out.println();

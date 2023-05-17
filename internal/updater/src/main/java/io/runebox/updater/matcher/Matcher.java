@@ -1,9 +1,9 @@
-package matcher;
+package io.runebox.updater.matcher;
 
-import matcher.classifier.*;
-import matcher.config.Config;
-import matcher.config.ProjectConfig;
-import matcher.type.*;
+import io.runebox.updater.matcher.classifier.*;
+import io.runebox.updater.matcher.config.Config;
+import io.runebox.updater.matcher.config.ProjectConfig;
+import io.runebox.updater.matcher.type.*;
 import org.tinylog.kotlin.Logger;
 
 import java.io.IOException;
@@ -68,7 +68,6 @@ public class Matcher {
 		Logger.INSTANCE.info(fieldsStr);
 		Logger.INSTANCE.info("===================================");
 	}
-
 
 	public void reset() {
 		env.reset();
@@ -157,7 +156,7 @@ public class Matcher {
 		if (a.getArrayDimensions() != b.getArrayDimensions()) throw new IllegalArgumentException("the classes don't have the same amount of array dimensions");
 		if (a.getMatch() == b) return;
 
-		Logger.INSTANCE.debug("match class "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
+		Logger.INSTANCE.info("Mapped class "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
 
 		if (a.getMatch() != null) {
 			a.getMatch().setMatch(null);
@@ -284,7 +283,7 @@ public class Matcher {
 		if (a.getCls().getMatch() != b.getCls()) throw new IllegalArgumentException("the methods don't belong to the same class");
 		if (a.getMatch() == b) return;
 
-		Logger.INSTANCE.debug("match method "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
+		Logger.INSTANCE.info("Mapped method "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
 
 		Set<MethodInstance> membersA = a.getAllHierarchyMembers();
 		Set<MethodInstance> membersB = b.getAllHierarchyMembers();
@@ -353,7 +352,7 @@ public class Matcher {
 		if (a.getCls().getMatch() != b.getCls()) throw new IllegalArgumentException("the methods don't belong to the same class");
 		if (a.getMatch() == b) return;
 
-		Logger.INSTANCE.debug("match field "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
+		Logger.INSTANCE.info("Mapped field "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
 
 		if (a.getMatch() != null) a.getMatch().setMatch(null);
 		if (b.getMatch() != null) b.getMatch().setMatch(null);
@@ -371,7 +370,7 @@ public class Matcher {
 		if (a.isArg() != b.isArg()) throw new IllegalArgumentException("the method vars are not of the same kind");
 		if (a.getMatch() == b) return;
 
-		Logger.INSTANCE.debug("match method arg "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
+		Logger.INSTANCE.info("Mapped method arg "+a+" -> "+b+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
 
 		if (a.getMatch() != null) a.getMatch().setMatch(null);
 		if (b.getMatch() != null) b.getMatch().setMatch(null);
@@ -386,7 +385,7 @@ public class Matcher {
 		if (cls == null) throw new NullPointerException("null class");
 		if (cls.getMatch() == null) return;
 
-		Logger.INSTANCE.debug("unmatch class "+cls+" (was "+cls.getMatch()+")"+(cls.hasMappedName() ? " ("+cls.getName(NameType.MAPPED_PLAIN)+")" : ""));
+		Logger.INSTANCE.info("Unmapped class "+cls+" (was "+cls.getMatch()+")"+(cls.hasMappedName() ? " ("+cls.getName(NameType.MAPPED_PLAIN)+")" : ""));
 
 		cls.getMatch().setMatch(null);
 		cls.setMatch(null);
@@ -408,7 +407,7 @@ public class Matcher {
 		if (m == null) throw new NullPointerException("null member");
 		if (m.getMatch() == null) return;
 
-		Logger.INSTANCE.debug("unmatch member "+m+" (was "+m.getMatch()+")"+(m.hasMappedName() ? " ("+m.getName(NameType.MAPPED_PLAIN)+")" : ""));
+		Logger.INSTANCE.info("Unmapped member "+m+" (was "+m.getMatch()+")"+(m.hasMappedName() ? " ("+m.getName(NameType.MAPPED_PLAIN)+")" : ""));
 
 		if (m instanceof MethodInstance) {
 			for (MethodVarInstance arg : ((MethodInstance) m).getArgs()) {
@@ -436,7 +435,7 @@ public class Matcher {
 		if (a == null) throw new NullPointerException("null method var");
 		if (a.getMatch() == null) return;
 
-		Logger.INSTANCE.debug("unmatch method var "+a+" (was "+a.getMatch()+")"+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
+		Logger.INSTANCE.info("Unmapped method var "+a+" (was "+a.getMatch()+")"+(a.hasMappedName() ? " ("+a.getName(NameType.MAPPED_PLAIN)+")" : ""));
 
 		a.getMatch().setMatch(null);
 		a.setMatch(null);
@@ -515,7 +514,7 @@ public class Matcher {
 			match(entry.getKey(), entry.getValue());
 		}
 
-		Logger.INSTANCE.debug("Auto matched "+matches.size()+" classes ("+(classes.size() - matches.size())+" unmatched, "+env.getClassesA().size()+" total)");
+		Logger.INSTANCE.info("Merged mappings -  "+matches.size()+" classes ("+(classes.size() - matches.size())+" unmatched, "+env.getClassesA().size()+" total)");
 
 		return !matches.isEmpty();
 	}
@@ -561,7 +560,7 @@ public class Matcher {
 			match(entry.getKey(), entry.getValue());
 		}
 
-		Logger.INSTANCE.debug("Auto matched "+matches.size()+" methods ("+totalUnmatched.get()+" unmatched)");
+		Logger.INSTANCE.info("Merged mappings -  "+matches.size()+" methods ("+totalUnmatched.get()+" unmapped)");
 
 		return !matches.isEmpty();
 	}
@@ -582,7 +581,7 @@ public class Matcher {
 			match(entry.getKey(), entry.getValue());
 		}
 
-		Logger.INSTANCE.debug("Auto matched "+matches.size()+" fields ("+totalUnmatched.get()+" unmatched)");
+		Logger.INSTANCE.info("Merged mappings -  "+matches.size()+" fields ("+totalUnmatched.get()+" unmapped)");
 
 		return !matches.isEmpty();
 	}
@@ -697,7 +696,7 @@ public class Matcher {
 			match(entry.getKey(), entry.getValue());
 		}
 
-		Logger.INSTANCE.debug("Auto matched "+matches.size()+" method "+(isArg ? "arg" : "var")+"s ("+totalUnmatched.get()+" unmatched)");
+		Logger.INSTANCE.info("Merged mappings -  "+matches.size()+" method "+(isArg ? "arg" : "var")+"s ("+totalUnmatched.get()+" unmapped)");
 
 		return !matches.isEmpty();
 	}

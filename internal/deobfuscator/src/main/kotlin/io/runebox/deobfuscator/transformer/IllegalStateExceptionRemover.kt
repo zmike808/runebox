@@ -4,7 +4,9 @@ import io.runebox.asm.tree.ClassGroup
 import io.runebox.asm.tree.intConstant
 import io.runebox.asm.tree.isStatic
 import io.runebox.asm.util.InsnMatcher
+import io.runebox.deobfuscator.Deobfuscator
 import io.runebox.deobfuscator.Transformer
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.GOTO
 import org.objectweb.asm.Type
 import org.objectweb.asm.tree.*
@@ -46,7 +48,13 @@ class IllegalStateExceptionRemover : Transformer {
         val new = insns[3] as TypeInsnNode
         if(load.`var` != method.lastArgIndex) return false
         if(cst.intConstant == null) return false
-        if(new.desc == "java/lang/IllegalStateMachine") return false
+        if(new.desc != "java/lang/IllegalStateException") return false
+        if(Deobfuscator.annotateMappings) {
+            if(method.visibleAnnotations == null) {
+                method.visibleAnnotations = mutableListOf()
+            }
+            method.visibleAnnotations.addAll(createOpaqueAnnotation(cst))
+        }
         return true
     }
 
@@ -55,12 +63,33 @@ class IllegalStateExceptionRemover : Transformer {
         val cst = insns[1]
         if(load.`var` != method.lastArgIndex) return false
         if(cst.intConstant == null) return false
+        if(Deobfuscator.annotateMappings) {
+            if(method.visibleAnnotations == null) {
+                method.visibleAnnotations = mutableListOf()
+            }
+            method.visibleAnnotations.addAll(createOpaqueAnnotation(cst))
+        }
         return true
     }
 
     private val MethodNode.lastArgIndex: Int get() {
         val offset = if(isStatic()) 1 else 0
         return (Type.getArgumentsAndReturnSizes(desc) shr 2) - offset - 1
+    }
+
+    private val AbstractInsnNode.intValue: Int get() {
+        if (opcode in 2..8) return opcode - 3
+        if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) return (this as IntInsnNode).operand
+        if (this is LdcInsnNode && cst is Int) return cst as Int
+        throw IllegalStateException()
+    }
+
+    private fun createOpaqueAnnotation(insn: AbstractInsnNode): MutableList<AnnotationNode> {
+        val node = AnnotationNode("Lio/runebox/deobfuscator/annotation/ObfOpaque;")
+        node.values = listOf(
+            "value", insn.intValue
+        )
+        return mutableListOf(node)
     }
 
     companion object {

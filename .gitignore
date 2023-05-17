@@ -6,3 +6,4 @@ out/
 !gradle-wrapper.jar
 *.log
 *.conf
+.obf

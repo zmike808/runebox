@@ -128,7 +128,7 @@ public class AsmClassRemapper extends ClassRemapper {
 
 			boolean copied = false;
 
-			for (int i = 0; i < bsmArgs.length; i++) {
+			for (int i = 0; i < bsmArgs	 .length; i++) {
 				Object oldArg = bsmArgs[i];
 				Object newArg = remapper.mapValue(oldArg);
 

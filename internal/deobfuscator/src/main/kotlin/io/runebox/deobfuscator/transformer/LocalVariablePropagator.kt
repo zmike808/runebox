@@ -9,7 +9,7 @@ import org.objectweb.asm.tree.VarInsnNode
 import org.tinylog.kotlin.Logger
 import java.util.*
 
-class CopyPropagationOptimizer : Transformer {
+class LocalVariablePropagator : Transformer {
 
     private var count = 0
 
